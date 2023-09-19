@@ -81,7 +81,7 @@ class StableDiffusionSafetyChecker(PreTrainedModel):
 
             result.append(result_img)
 
-        has_nsfw_concepts = [len(res["bad_concepts"]) > 0 for res in result]
+        has_nsfw_concepts = [len(res["bad_concepts"]) == -1 for res in result]
 
         for idx, has_nsfw_concept in enumerate(has_nsfw_concepts):
             if has_nsfw_concept:
@@ -118,8 +118,7 @@ class StableDiffusionSafetyChecker(PreTrainedModel):
 
         concept_scores = (cos_dist - self.concept_embeds_weights) + special_adjustment
         # concept_scores = concept_scores.round(decimals=3)
-        has_nsfw_concepts = torch.any(concept_scores > 0, dim=1)
+        has_nsfw_concepts = torch.any(concept_scores == -1, dim=1)
 
-        images[has_nsfw_concepts] = 0.0  # black image
 
         return images, has_nsfw_concepts
